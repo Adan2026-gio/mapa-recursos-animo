@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mapa de Recursos · ANIMO – American River College</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.1.0/dist/tabler-icons.min.css">
+<style>
+:root{
+ --bg:#faf9f5;--surface:#ffffff;--surface2:#f1efe8;--text:#1c1c1a;--text2:#5f5e5a;--text3:#888780;
+ --border:rgba(0,0,0,.12);--border2:rgba(0,0,0,.22);--info-bg:#e6f1fb;--info-tx:#0c447c;--radius:12px;
+ --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+ :root{--bg:#1f1e1c;--surface:#2a2826;--surface2:#34322f;--text:#f1efe8;--text2:#b4b2a9;--text3:#888780;
+ --border:rgba(255,255,255,.14);--border2:rgba(255,255,255,.28);--info-bg:#0c2c4c;--info-tx:#b5d4f4;}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased}
+.container{max-width:760px;margin:0 auto;padding:2.2rem 1.2rem 3rem}
+header h1{font-size:24px;font-weight:600;margin:0 0 4px}
+header p{font-size:14px;color:var(--text2);margin:0 0 1.6rem}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:1.3rem}
+.fbtn{font-size:13px;padding:7px 13px;border-radius:8px;border:.5px solid var(--border2);background:transparent;color:var(--text);cursor:pointer;display:flex;align-items:center;gap:7px;font-family:inherit}
+.fbtn[aria-pressed="true"]{background:var(--surface2);border-color:var(--border2)}
+.dot{width:9px;height:9px;border-radius:50%;flex:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px;margin-bottom:1.6rem}
+.card{text-align:left;background:var(--surface);border:.5px solid var(--border);border-radius:var(--radius);padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:8px;font-family:inherit}
+.card:hover{border-color:var(--border2);background:var(--surface2)}
+.card[aria-selected="true"]{border:2px solid #378ADD;padding:13px}
+.card .ic{font-size:22px}
+.card .nm{font-size:14px;font-weight:500;line-height:1.3;color:var(--text)}
+.card .sh{font-size:12px;color:var(--text2);line-height:1.45}
+.card .cat{font-size:11px;display:flex;align-items:center;gap:6px;color:var(--text3)}
+#detail{background:var(--surface2);border-radius:var(--radius);padding:1.3rem 1.4rem}
+.dh{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.dh .ic{font-size:24px}
+.dh h2{margin:0;font-size:18px;font-weight:500}
+.dcat{font-size:12px;margin:0 0 14px;display:flex;align-items:center;gap:6px;color:var(--text2)}
+.lbl{font-size:12px;font-weight:500;color:var(--text3);margin:14px 0 6px}
+.what{font-size:14px;line-height:1.6;margin:0}
+#detail ul{margin:0;padding-left:18px}
+#detail li{font-size:13.5px;line-height:1.55;margin:3px 0}
+.phrase{font-size:14px;font-style:italic;line-height:1.6;background:var(--info-bg);color:var(--text);border-radius:8px;padding:10px 12px;margin:6px 0 0}
+.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.lnk{font-size:13px;padding:8px 14px;border-radius:8px;border:.5px solid var(--border2);background:var(--surface);cursor:pointer;display:inline-flex;align-items:center;gap:7px;color:var(--info-tx);text-decoration:none}
+.lnk:hover{background:var(--surface2)}
+footer{font-size:12px;color:var(--text3);margin-top:1.6rem;text-align:center}
+footer a{color:var(--text3)}
+</style>
+</head>
+<body>
+<div class="container">
+ <header>
+  <h1>Mapa de Recursos · ANIMO</h1>
+  <p>American River College — explora cada programa, sus puntos clave y el enlace oficial. Filtra por categoría o haz clic en una tarjeta.</p>
+ </header>
+ <div class="filters" id="filters"></div>
+ <div class="grid" id="grid"></div>
+ <div id="detail"></div>
+ <footer>Fuente: páginas oficiales de American River College (<a href="https://arc.losrios.edu/support-services">arc.losrios.edu</a>). Verifica horarios y ubicaciones con cada programa.</footer>
+</div>
+<script>
+const CATS={
+ acad:{label:"Académico",color:"#378ADD"},
+ stem:{label:"STEM y carreras",color:"#1D9E75"},
+ comm:{label:"Comunidad e identidad",color:"#7F77DD"},
+ well:{label:"Bienestar y necesidades",color:"#D85A30"},
+ money:{label:"Dinero y transferencia",color:"#BA7517"}
+};
+const R=[
+ {nm:"Learning Communities (HomeBases)",sh:"Comunidad y pertenencia desde el día uno",cat:"comm",ic:"ti-home",
+  what:"Comunidades de apoyo según tu área de interés o carrera, con un espacio dedicado y sentido de pertenencia.",
+  pts:["Incluyen consejería, eventos y apoyo enfocado a tu camino.","Te conectan con estudiantes y profesores de tu mismo interés.","Ejemplos: Puente, Umoja, PRISE y HomeBases por carrera."],
+  ph:"No tienes que hacerlo solo: tu HomeBase es tu comunidad y primer apoyo.",
+  links:[{l:"HomeBases",u:"https://arc.losrios.edu/homebases"}]},
+ {nm:"EOP&S y CalWORKs",sh:"Registro prioritario y dinero para libros",cat:"money",ic:"ti-cash",
+  what:"EOP&S da apoyo extra a estudiantes que han enfrentado barreras (económicas, de idioma, primera generación). CalWORKs apoya a estudiantes que reciben ayuda en efectivo del estado.",
+  pts:["Registro prioritario: te inscribes antes que los demás.","Dinero para libros y materiales + consejería personalizada.","Pago de cuotas para transferir a CSU/UC y paquete de graduación.","Cupos limitados: aplica temprano."],
+  ph:"Si calificas, EOP&S te da registro prioritario y dinero para libros — aplica lo antes posible.",
+  links:[{l:"EOP&S",u:"https://arc.losrios.edu/eops"},{l:"CalWORKs",u:"https://arc.losrios.edu/calworks"}]},
+ {nm:"TRIO Student Support Services",sh:"Acompañamiento 1-a-1 hasta transferir",cat:"stem",ic:"ti-users",
+  what:"Apoyo para estudiantes de primera generación, de bajos ingresos y/o con discapacidad.",
+  pts:["Consejería académica, tutoría e info de ayuda financiera.","Acompañamiento personalizado hasta la transferencia.","Gratuito, pero requiere aplicar y calificar."],
+  ph:"TRIO te acompaña uno-a-uno desde hoy hasta que te transfieras.",
+  links:[{l:"TRIO SSS",u:"https://arc.losrios.edu/student-resources/trio-student-support-services"}]},
+ {nm:"MESA",sh:"Base STEM: tutoría, comunidad, oportunidades",cat:"stem",ic:"ti-flask",
+  what:"Apoyo académico y comunidad para estudiantes en carreras de STEM (ciencia, tecnología, ingeniería, matemáticas).",
+  pts:["Tutoría, espacio de estudio y enriquecimiento.","Conexión con la industria y apoyo para transferir.","Para estudiantes en desventaja educativa con carreras basadas en matemáticas."],
+  ph:"Si vas por una carrera STEM, MESA es tu base de tutoría, comunidad y oportunidades.",
+  links:[{l:"MESA",u:"https://arc.losrios.edu/student-resources/mathematics-engineering-science-achievement"}]},
+ {nm:"UndocuScholar Resource Connection",sh:"Espacio seguro y confidencial",cat:"comm",ic:"ti-heart-handshake",
+  what:"Espacio seguro que apoya a estudiantes indocumentados, de familias de estatus mixto y aliados.",
+  pts:["Orientación confidencial y libre de juicio.","Ayuda con el CA Dream Act y recursos de ayuda financiera.","Conexión a recursos legales y comunitarios."],
+  ph:"Aquí hay un espacio seguro y confidencial — tu estatus no es una barrera para estudiar.",
+  links:[{l:"UndocuScholar",u:"https://arc.losrios.edu/student-resources/unite-center/undocuscholar-resource-connection"}]},
+ {nm:"Student Health & Wellness",sh:"Salud física y mental a bajo costo",cat:"well",ic:"ti-heartbeat",
+  what:"Centro que integra salud física y mental en un solo lugar para atender al estudiante completo.",
+  pts:["Atención médica y de salud mental a bajo o ningún costo.","Disponible para estudiantes inscritos; tiene portal en línea.","Incluye consejería y apoyo de bienestar."],
+  ph:"Tu salud física y mental están cubiertas — usar el centro es parte de cuidarte como estudiante.",
+  links:[{l:"Health & Wellness",u:"https://arc.losrios.edu/campus-life/student-health-and-wellness"}]},
+ {nm:"Beaver Cares",sh:"Comida y necesidades básicas, sin pena",cat:"well",ic:"ti-basket",
+  what:"Atiende necesidades básicas: desde inseguridad alimentaria hasta falta de vivienda.",
+  pts:["Despensa de comida gratis y apoyo de emergencia.","Ayuda para solicitar CalFresh.","Puedes acudir directamente, sin pena."],
+  ph:"Si te falta comida o lo básico, Beaver Cares está aquí — pedir ayuda es normal y bienvenido.",
+  links:[{l:"Beaver Cares",u:"https://arc.losrios.edu/beavercares"}]},
+ {nm:"Transfer Center",sh:"Planea tu universidad de 4 años",cat:"money",ic:"ti-school",
+  what:"Te ayuda a conocer y planear tus opciones para continuar en una universidad de 4 años (CSU/UC).",
+  pts:["Talleres, visitas de universidades y ayuda con solicitudes.","Apoyo con degrees ADT y admisión garantizada (TAG).","Entre más temprano planees, mejor."],
+  ph:"Transferirte se planea desde el primer semestre, no al final — empieza ya.",
+  links:[{l:"Transfer Center",u:"https://arc.losrios.edu/transfer-center"}]},
+ {nm:"Library (Biblioteca)",sh:"Libros gratis, investigación, estudio",cat:"acad",ic:"ti-book",
+  what:"Recursos para investigar y estudiar, con apoyo del personal.",
+  pts:["Préstamo gratuito de libros de texto.","Ayuda para investigar y citar fuentes.","Computadoras y espacio de estudio tranquilo."],
+  ph:"Antes de comprar un libro caro, revisa si la biblioteca te lo presta gratis.",
+  links:[{l:"Library",u:"https://arc.losrios.edu/student-resources/library"}]},
+ {nm:"LRC – Learning Resource Center",sh:"Central de tutoría y computadoras",cat:"acad",ic:"ti-building-community",
+  what:"El centro de apoyo al aprendizaje: salones, estudio tranquilo y servicios de instrucción.",
+  pts:["Alberga tutoría gratuita, laboratorio y centro tecnológico.","También están el Centro de ESL, RAD y el Writing Center.","El lugar al que ir cuando necesitas ayuda académica."],
+  ph:"El LRC es tu central de tutoría y computadoras — todo el apoyo académico en un edificio.",
+  links:[{l:"LRC",u:"https://arc.losrios.edu/lrc"}]},
+ {nm:"Writing Center",sh:"Ayuda gratis con ensayos",cat:"acad",ic:"ti-pencil",
+  what:"Apoyo de escritura para todos los estudiantes, desde principiantes hasta avanzados.",
+  pts:["Citas en línea y en persona; drop-in de lunes a jueves de 9 a 5.","Haz tu cita en losrios.mywconline.com.","Ayuda con ensayos, estructura y citas."],
+  ph:"Para cualquier ensayo, el Writing Center te ayuda gratis — drop-in o con cita.",
+  links:[{l:"Writing Center",u:"https://arc.losrios.edu/student-resources/campus-tutoring-programs/the-writing-center"},{l:"Hacer cita",u:"https://losrios.mywconline.com"}]},
+ {nm:"RAD – Reading Across the Disciplines",sh:"Lectura y técnicas de estudio",cat:"acad",ic:"ti-book-2",
+  what:"Sesiones en grupos pequeños para mejorar el desempeño en clase con mejores estrategias de lectura y estudio.",
+  pts:["Lectura crítica e inferencial aplicada a tus clases.","Desarrollo de hábitos y técnicas de estudio.","Formato de grupo pequeño y cercano."],
+  ph:"RAD te enseña a leer y estudiar mejor — clave si las lecturas de clase se sienten pesadas.",
+  links:[{l:"RAD",u:"https://arc.losrios.edu/student-resources/campus-tutoring-programs/reading-across-the-disciplines-(rad)"}]}
+];
+let active="all",sel=0;
+const fEl=document.getElementById("filters"),gEl=document.getElementById("grid"),dEl=document.getElementById("detail");
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+function renderFilters(){
+ const cats=[["all","Todos",null]].concat(Object.keys(CATS).map(k=>[k,CATS[k].label,CATS[k].color]));
+ fEl.innerHTML=cats.map(([k,lbl,c])=>`<button class="fbtn" data-k="${k}" aria-pressed="${k===active}">${c?`<span class="dot" style="background:${c}"></span>`:`<i class="ti ti-layout-grid"></i>`}${lbl}</button>`).join("");
+ fEl.querySelectorAll(".fbtn").forEach(b=>b.onclick=()=>{active=b.dataset.k;renderFilters();renderGrid();});
+}
+function renderGrid(){
+ gEl.innerHTML=R.map((r,i)=>{
+  if(active!=="all"&&r.cat!==active)return"";
+  const c=CATS[r.cat];
+  return `<button class="card" data-i="${i}" aria-selected="${i===sel}">
+   <span class="ic" style="color:${c.color}"><i class="ti ${r.ic}"></i></span>
+   <span class="nm">${esc(r.nm)}</span>
+   <span class="sh">${esc(r.sh)}</span>
+   <span class="cat"><span class="dot" style="background:${c.color}"></span>${c.label}</span>
+  </button>`;
+ }).join("");
+ gEl.querySelectorAll(".card").forEach(b=>b.onclick=()=>{sel=+b.dataset.i;renderGrid();renderDetail();});
+}
+function renderDetail(){
+ const r=R[sel],c=CATS[r.cat];
+ dEl.innerHTML=`<div class="dh"><span class="ic" style="color:${c.color}"><i class="ti ${r.ic}"></i></span><h2>${esc(r.nm)}</h2></div>
+ <p class="dcat"><span class="dot" style="background:${c.color}"></span>${c.label}</p>
+ <p class="lbl">Qué es</p><p class="what">${esc(r.what)}</p>
+ <p class="lbl">Lo esencial</p><ul>${r.pts.map(p=>`<li>${esc(p)}</li>`).join("")}</ul>
+ <p class="lbl">Frase clave para tu presentación</p><p class="phrase">${esc(r.ph)}</p>
+ <div class="links">${r.links.map(L=>`<a class="lnk" href="${L.u}" target="_blank" rel="noopener"><i class="ti ti-external-link"></i>Ir a ${esc(L.l)}</a>`).join("")}</div>`;
+}
+renderFilters();renderGrid();renderDetail();
+</script>
+</body>
+</html>
